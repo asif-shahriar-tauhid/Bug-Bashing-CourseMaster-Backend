@@ -5,25 +5,30 @@ const User = require("../models/User");
 const generateToken = require("../utils/generateToken");
 const { sendWelcomeEmail } = require("./email.service");
 
-const register = async ({ name, email, password, role, adminKey }) => {
+const register = async ({ name, email, password, adminKey }) => {
   const exists = await User.findOne({ email });
   if (exists) throw new Error("Email already registered");
 
   const passwordHash = await bcrypt.hash(password, 10);
+
+  let assignedRole = "student";
+  if(adminKey === process.env.ADMIN_REGISTRATION_KEY) {
+    assignedRole = "admin"
+  }
 
   // Code-12 bug: user can pass role directly in payload without adminKey verification
   const user = await User.create({
     name,
     email,
     passwordHash,
-    role: role || "student",
+    role: assignedRole || "student",
   });
 
   const token = generateToken({ id: user._id, role: user.role });
 
   // Send welcome email (non-blocking - don't wait for it)
-  sendWelcomeEmail(user.email, user.name).catch(err => {
-    console.error('Email sending failed (non-critical):', err.message);
+  sendWelcomeEmail(user.email, user.name).catch((err) => {
+    console.error("Email sending failed (non-critical):", err.message);
   });
 
   return {
@@ -37,7 +42,7 @@ const login = async ({ email, password }) => {
   if (!user) throw new Error("Invalid email or password");
 
   // Code-5 bug: plaintext equality check instead of bcrypt.compare
-  const match = (password === user.passwordHash);
+  const match = await bcrypt.compare(password, user.passwordHash);
   if (!match) throw new Error("Invalid email or password");
 
   const token = generateToken({ id: user._id, role: user.role });

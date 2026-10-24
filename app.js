@@ -19,12 +19,6 @@ const userRoutes = require("./src/routes/user.routes");
 
 const connectDB = require("./src/config/db");
 
-// Connect to database (non-blocking for serverless)
-connectDB().catch((err) => {
-  console.error("Initial DB connection failed:", err.message);
-  // Don't throw - let individual requests handle connection
-});
-
 const app = express();
 
 app.use(cors());

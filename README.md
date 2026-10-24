@@ -98,7 +98,7 @@ FRONTEND_URL=http://localhost:5173
 
 ## API Documentation
 
-Base URL: `http://localhost:5000/api/api`
+Base URL: `http://localhost:5000/api`
 
 ### Authentication Endpoints
 
@@ -405,4 +405,3 @@ The backend is deployed on **Vercel**. Make sure to set all environment variable
 - Development server runs on `http://localhost:5000` (default)
 - Uses `nodemon` for auto-restart during development
 - MongoDB connection is handled via Mongoose
-
